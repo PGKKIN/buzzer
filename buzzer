@@ -1,0 +1,137 @@
+#define LED 17
+#define BUTTON 18
+hw_timer_t *My_timer = NULL;
+
+int x = 0;
+int sound = 0;
+
+// This is the Timer ISR. It is automatically called 
+// on a timer alarm event.
+void IRAM_ATTR onTimer() {
+  if (sound != 0)
+    digitalWrite(LED, !digitalRead(LED));
+  else
+    digitalWrite(LED, 0);
+}
+
+// Use String for the note sequence
+String noteSequence[] = {"c", "-", "c", "-", "g", "-", "g", "-", "a", "-", "a", "-", "g", "-", "f", "-", "f", "-", "e", "-", "e", "-", "d", "-", "d", "-", "c"};
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(BUTTON, INPUT);
+  pinMode(LED, OUTPUT);
+  My_timer = timerBegin(0, 80, true);  // use timer 0 and set prescale to 80 so 1 tick is 1 uSec
+  timerAttachInterrupt(My_timer, &onTimer, true); // point to the ISR
+  timerAlarmWrite(My_timer, 1000000, true);  // set alarm every 1 sec
+  timerAlarmEnable(My_timer);  // enable the alarm
+}
+
+int return_x(double f) {
+  double x = 1;
+  x = ((1 / f / 2) * 1000000);
+  int z = (int)x;
+  return z;
+}
+
+void set_note(String x) {
+  // Convert the note character to a String for comparison
+  String noteString = String(x);
+  sound = 1;
+  if (noteString == "c") {
+    timerAlarmWrite(My_timer, return_x(1047), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (noteString == "c#") {
+    timerAlarmWrite(My_timer, return_x(1109), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "d") {
+    timerAlarmWrite(My_timer, return_x(1175), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "eb") {
+    timerAlarmWrite(My_timer, return_x(1245), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "e") {
+    timerAlarmWrite(My_timer, return_x(1319), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "f") {
+    timerAlarmWrite(My_timer, return_x(1397), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "f#") {
+    timerAlarmWrite(My_timer, return_x(1480), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "g") {
+    timerAlarmWrite(My_timer, return_x(1568), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "g#") {
+    timerAlarmWrite(My_timer, return_x(1661), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "a") {
+    timerAlarmWrite(My_timer, return_x(1760), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "bb") {
+    timerAlarmWrite(My_timer, return_x(1865), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "b") {
+    timerAlarmWrite(My_timer, return_x(1976), true);
+    timerAlarmEnable(My_timer);
+  }
+  else if (x == "-") {
+    sound = 0;
+    //timerAlarmWrite(My_timer, return_x(0), true);
+    //timerAlarmEnable(My_timer);
+  }
+  delay(250);
+}
+
+int button_1() {
+  if (digitalRead(BUTTON) == 0) 
+  {
+    x += 1;
+    delay(500);
+  }
+  if (x == 5) {
+    x = 0;
+  }
+  Serial.println(x);
+  return x;
+}
+
+int set_speed(int x) {
+  if (x == 0) {
+    return 0;
+  }
+  else if (x == 1) {
+    return 50;
+  }
+  else if (x == 2) {
+    return 100;
+  }
+  else if (x == 3) {
+    return 150;
+  }
+  else if (x == 4) {
+    return 200;
+  }
+}
+
+void loop() {
+
+  
+ 
+  for (int i = 0; i < sizeof(noteSequence) / sizeof(noteSequence[0]); i++) {
+    set_note(noteSequence[i]);
+    delay(set_speed(button_1()));
+  }
+  
+}
